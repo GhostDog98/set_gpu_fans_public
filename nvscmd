@@ -98,10 +98,7 @@ loop:
         set foo = (`/usr/bin/nvidia-smi dmon -s p -c 1 ${gpuid}| tail -1`)
         @ temp = $foo[3]
         @ target = -2
-        if (${temp} < 30) then
-            @ target = 20
-        endif
-        if (${temp} < 34 && ${temp} >= 30) then
+        if (${temp} < 34) then
             @ target = 30
 	endif
         if (${temp} < 38 && ${temp} >= 34) then
@@ -132,7 +129,7 @@ loop:
             @ target = 90
 	endif
         if (${temp} >= 77) then
-            @ target = 100
+            @ target = 99
         endif
         if (${target} == -2 || ${target} == ${last_target} || ${target} == ${last_friendly_target}) then
             echo "Current temperature is ${temp}.  No adjustments needed."
@@ -151,24 +148,25 @@ loop:
 
         # relinquish fan speed control back to the system
         if ("x${target}" == "x-1") then
-		set i = 0
-		while ($i < NUM_GPUS)
-			/usr/bin/nvidia-settings -a "[gpu:${i}]/GPUFanControlState=0"  $*
-		    @ i++
-		end
-		endif
-
+	    set i = 0
+	    while ($i < $NUM_GPUS)
+		/usr/bin/nvidia-settings -a "[gpu:${i}]/GPUFanControlState=0"  $* >& /dev/null
+	    	@ i++
+	    end
+	endif
         # set fan speed on primary GPU to target
         if (${target} >= 0) then
 	    set i = 0
-	    while ($i < NUM_GPUS)
-                /usr/bin/nvidia-settings -a "[gpu:${i}]/GPUFanControlState=1"  $*
+	    while ($i < $NUM_GPUS)
+                /usr/bin/nvidia-settings -a "[gpu:${i}]/GPUFanControlState=1"  $* >& /dev/null
                 @ i++
             end
 
             set i = 0
-	    while ($i < NUM_FANS)
-	        /usr/bin/nvidia-settings -a "[fan:${i}]/GPUTargetFanSpeed=${target}" $*
+	    while ($i < $NUM_FANS)
+		echo "Setting fan ${i} to ${target}"
+	        /usr/bin/nvidia-settings -a "[fan:${i}]/GPUTargetFanSpeed=${target}" $* >& /dev/null
+		@ i++
 	    end
 	endif
     endif
@@ -192,3 +190,4 @@ loop:
 if ( ${run_forever} == 1 ) then
     goto loop
 endif
+
