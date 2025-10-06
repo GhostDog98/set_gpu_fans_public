@@ -151,11 +151,12 @@ loop:
 
         # relinquish fan speed control back to the system
         if ("x${target}" == "x-1") then
-	    set i = 0
-	    while ($i < NUM_GPUS)
-		/usr/bin/nvidia-settings -a "[gpu:${i}]/GPUFanControlState=0"  $*
-	    	@ i++
-	    end
+		set i = 0
+		while ($i < NUM_GPUS)
+			/usr/bin/nvidia-settings -a "[gpu:${i}]/GPUFanControlState=0"  $*
+		    @ i++
+		end
+		endif
 
         # set fan speed on primary GPU to target
         if (${target} >= 0) then
