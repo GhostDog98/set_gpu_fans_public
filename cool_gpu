@@ -37,7 +37,7 @@
 # to eek out a few percent more perf with very noticeable but still
 # tolerable fan noise).
 
-dir=/home/liuk/src/set_gpu_fans_public
+dir=$PWD
 
 /opt/bin/nvidia-smi -pm 1
 
