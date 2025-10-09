@@ -87,7 +87,7 @@ while true; do
             i=0
             while [ $i -lt $NUM_GPUS ]; do
                 /usr/bin/nvidia-settings -a "[gpu:${i}]/GPUFanControlState=0" "$@" >& /dev/null
-                i++
+                ((i++))
             done
         fi
 
@@ -96,14 +96,14 @@ while true; do
             i=0
             while [ $i -lt $NUM_GPUS ]; do
                 /usr/bin/nvidia-settings -a "[gpu:${i}]/GPUFanControlState=1" "$@" >& /dev/null
-                i++
+                ((i++))
             done
 
             i=0
             while [ $i -lt $NUM_FANS ]; do
                 echo "Setting fan ${i} to ${target}%"
                 /usr/bin/nvidia-settings -a "[fan:${i}]/GPUTargetFanSpeed=${target}" "$@" >& /dev/null
-                i++
+                ((i++))
             done
         fi
     fi
@@ -115,11 +115,13 @@ while true; do
         last_friendly_target=$last_target
     fi
     if [ $last_target -eq -1 ]; then
-        last_friendly_target="AUTO"
+        last_friendly_target=-0
+        echo "Previous target was AUTO"
     fi
     # -2 means preserve
     if [ $last_target -lt -2 ]; then
-        last_friendly_target="UNKNOWN"
+        last_friendly_target=-0
+        echo "Previous target was UNKNOWN"
     fi
     
     sleep 15
