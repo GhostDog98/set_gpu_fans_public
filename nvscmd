@@ -38,7 +38,7 @@ fi
 
 if [ "x$1" == "x" ] || [ "x$1" == "xstart" ] || [ "x$1" == "x-display" ]; then
     # this means "use heuristic"
-    echo "Using heuristic for fan speed"
+    echo "Using heuristic for fan speed, \$1 is '$1'"
     target=-3
 else
     echo "Setting target to $1"
