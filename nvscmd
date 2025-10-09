@@ -69,6 +69,16 @@ while true; do
 
         target=$(fan_curve $temp)
 
+
+        if [[ $target -gt 40 ]]; then # If we are above 40% fan speed, switch to performance mode
+            echo "Detected performance, switching to performance mode"
+            nvidia-settings -a "[gpu:$GPU_ID]/GpuPowerMizerMode=1" # Prefer maximum performance
+        else
+            echo "Detected non-performance, switching to adaptive mode"
+            nvidia-settings -a "[gpu:$GPU_ID]/GpuPowerMizerMode=0" # Prefer adaptive performance
+        fi
+
+
         if [[ $target -eq -2 || $target -eq $last_target || $target -eq $last_friendly_target ]]; then
             echo "Current average temperature is ${temp}c. No adjustments needed."
         else
@@ -85,6 +95,7 @@ while true; do
         # relinquish fan speed control back to the system
         if [ "x${target}" == "x-1" ]; then
             /usr/bin/nvidia-settings -a "[gpu:${GPU_ID}]/GPUFanControlState=0" "$@" >& /dev/null
+            nvidia-settings -a "[gpu:$GPU_ID]/GpuPowerMizerMode=0" # Prefer adaptive performance
         fi
 
         # set fan speed on GPU(s) to target
