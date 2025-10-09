@@ -32,7 +32,7 @@ gpuid=""
 ((n--))
 
 if [ "$cond" -eq "$n" ]; then
-    gpuid=" -i $1 "
+    gpuid="-i $1 "
     echo "${gpuid}"
     shift
 fi
