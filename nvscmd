@@ -31,6 +31,9 @@ echo "Setting run_forever to 1"
 run_forever=1
 
 
+GPU_ID=$1 # GPU ID is the first argument, this is to set the gpu's fans we want to control
+shift
+
 if [ "x$1" == "xstop" ]; then
     echo "Setting target to -1"
     target=-1
@@ -60,8 +63,8 @@ while true; do
 
     if [ $target -eq -3 ]; then
         # execute heuristic
-        # this averages the GPU temps of all GPUs
-        temp=$(nvidia-smi dmon -s p -c 1 | grep -v '#' | tr -d '-' | sed 's/     /,/gm' | tr -d ' ' | sed 's/^[0-9]*,//g' | sed 's/,[0-9]*,//g' | awk '{sum+=$1; count++} END {printf "%.0f\n", sum/count}')
+        #temp=$(nvidia-smi dmon -s p -c 1 | grep -v '#' | tr -d '-' | sed 's/     /,/gm' | tr -d ' ' | sed 's/^[0-9]*,//g' | sed 's/,[0-9]*,//g' | awk '{sum+=$1; count++} END {printf "%.0f\n", sum/count}')         # this averages the GPU temps of all GPUs
+        temp=$(nvidia-smi --query-gpu temperature.gpu -i $GPU_ID --format=noheader,csv) # this gets the temperature of the specified GPU
         target=-2 #default value
 
         target=$(fan_curve $temp)
@@ -78,33 +81,19 @@ while true; do
     fi
 
     if [[ $last_target -ne $target && $last_friendly_target -ne $target ]]; then
-        NUM_GPUS=$(nvidia-settings -q gpus | grep -c 'gpu:')
-        NUM_FANS=$(nvidia-settings -q fans | grep -c 'fan:')
-        echo "Detected ${NUM_GPUS} GPUs and ${NUM_FANS} fans." 
 
         # relinquish fan speed control back to the system
         if [ "x${target}" == "x-1" ]; then
-            i=0
-            while [ $i -lt $NUM_GPUS ]; do
-                /usr/bin/nvidia-settings -a "[gpu:${i}]/GPUFanControlState=0" "$@" >& /dev/null
-                ((i++))
-            done
+            /usr/bin/nvidia-settings -a "[gpu:${GPU_ID}]/GPUFanControlState=0" "$@" >& /dev/null
         fi
 
         # set fan speed on GPU(s) to target
         if [ $target -ge 0 ]; then
-            i=0
-            while [ $i -lt $NUM_GPUS ]; do
-                /usr/bin/nvidia-settings -a "[gpu:${i}]/GPUFanControlState=1" "$@" >& /dev/null
-                ((i++))
-            done
+            # enable manual fan control
+            /usr/bin/nvidia-settings -a "[gpu:${GPU_ID}]/GPUFanControlState=1" "$@" >& /dev/null
 
-            i=0
-            while [ $i -lt $NUM_FANS ]; do
-                echo "Setting fan ${i} to ${target}%"
-                /usr/bin/nvidia-settings -a "[fan:${i}]/GPUTargetFanSpeed=${target}" "$@" >& /dev/null
-                ((i++))
-            done
+            echo "Setting fan ${GPU_ID} to ${target}%"
+            /usr/bin/nvidia-settings -a "[fan:${GPU_ID}]/GPUTargetFanSpeed=${target}" "$@" >& /dev/null
         fi
     fi
 
