@@ -52,7 +52,7 @@ fi
 
 # -10 aka null
 last_target=-10
-last_friendly_target="UNKNOWN"
+last_friendly_target=-0
 
 
 while true; do
@@ -60,10 +60,9 @@ while true; do
 
     if [ $target -eq -3 ]; then
         # execute heuristic
-        #foo=$(/usr/bin/nvidia-smi dmon -s p -c 1 ${gpuid}| tail -1)
         # this averages the GPU temps of all GPUs
         temp=$(nvidia-smi dmon -s p -c 1 | grep -v '#' | tr -d '-' | sed 's/     /,/gm' | tr -d ' ' | sed 's/^[0-9]*,//g' | sed 's/,[0-9]*,//g' | awk '{sum+=$1; count++} END {printf "%.0f\n", sum/count}')
-        target=-2
+        target=-2 #default value
 
         target=$(fan_curve $temp)
 
