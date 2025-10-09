@@ -77,7 +77,7 @@ while true; do
             else
                 echo "Current average temperature is ${temp}c. Setting fan speed to AUTO"
             fi
-        fix
+        fi
     fi
 
     if [[ $last_target -ne $target && $last_friendly_target -ne $target ]]; then
