@@ -36,7 +36,7 @@ if [ "x$1" == "xstop" ]; then
     target=-1
 fi
 
-if [ "x$1" == "x" ] || [ "x$1" == "xstart" ] || [ "x$1" == "x-display" ]; then
+if [[ "x$1" == "x" || "x$1" == "xstart" || "x$1" == "x-display" ]]; then
     # this means "use heuristic"
     echo "Using heuristic for fan speed, \$1 is '$1'"
     target=-3
@@ -45,7 +45,7 @@ else
     target=$1
 fi
 
-if [ "x$1" != "x" ] && [ "x$1" != "x-display" ]; then
+if [[ "x$1" != "x" && "x$1" != "x-display" ]]; then
     echo "Shifting arguments"
     shift
 fi
@@ -66,18 +66,18 @@ while true; do
 
         target=$(fan_curve $temp)
 
-        if [ $target -eq -2 ] || [ $target -eq $last_target] || [ $target -eq $last_friendly_target ]; then
-            echo "Current temperature is ${temp}c. No adjustments needed."
+        if [[ $target -eq -2 || $target -eq $last_target || $target -eq $last_friendly_target ]]; then
+            echo "Current average temperature is ${temp}c. No adjustments needed."
         else
             if [ $target -ge 0 ]; then
-                echo "Current temperature is ${temp}c. Setting fan speed to ${target}%"
+                echo "Current average temperature is ${temp}c. Setting fan speed to ${target}%"
             else
-                echo "Current temperature is ${temp}c. Setting fan speed to AUTO"
+                echo "Current average temperature is ${temp}c. Setting fan speed to AUTO"
             fi
-        fi
+        fix
     fi
 
-    if [ $last_target -ne $target ] && [ $last_friendly_target -ne $target ]; then
+    if [[ $last_target -ne $target && $last_friendly_target -ne $target ]]; then
         NUM_GPUS=$(nvidia-settings -q gpus | grep -c 'gpu:')
         NUM_FANS=$(nvidia-settings -q fans | grep -c 'fan:')
         echo "Detected ${NUM_GPUS} GPUs and ${NUM_FANS} fans." 
