@@ -39,7 +39,7 @@
 
 dir=$PWD
 
-/opt/bin/nvidia-smi -pm 1
+/usr/bin/nvidia-smi -pm 1 # Set persistence mode to 1
 
 # we need to launch the X server once for each display
 # making each of the PCI IDs the primary device in turn.
