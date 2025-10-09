@@ -26,26 +26,10 @@ function fan_curve {
     echo $fanspeed
 }
 
-cond=$(expr "$1" : '^[A-Fa-f0-9]*:[A-Fa-f0-9]*.[A-Fa-f0-9]*$')
-n=$(echo "$1" | wc -c | tr -d ' ')
-gpuid=""
-((n--))
 
-if [ "$cond" -eq "$n" ]; then
-    gpuid="-i $1 "
-    echo "${gpuid}"
-    shift
-fi
+echo "Setting run_forever to 1"
+run_forever=1
 
-
-if [ "x$1" == "xrun_forever" ]; then
-    echo "Setting run_forever to 1"
-    run_forever=1
-    shift
-else
-    echo "Setting run_forever to 0"
-    run_forever=0
-fi
 
 if [ "x$1" == "xstop" ]; then
     echo "Setting target to -1"
@@ -76,8 +60,9 @@ while true; do
 
     if [ $target -eq -3 ]; then
         # execute heuristic
-        foo=$(/usr/bin/nvidia-smi dmon -s p -c 1 ${gpuid}| tail -1)
-        temp=${foo[2]}
+        #foo=$(/usr/bin/nvidia-smi dmon -s p -c 1 ${gpuid}| tail -1)
+        # this averages the GPU temps of all GPUs
+        temp=$(nvidia-smi dmon -s p -c 1 | grep -v '#' | tr -d '-' | sed 's/     /,/gm' | tr -d ' ' | sed 's/^[0-9]*,//g' | sed 's/,[0-9]*,//g' | awk '{sum+=$1; count++} END {printf "%.0f\n", sum/count}')
         target=-2
 
         target=$(fan_curve $temp)
