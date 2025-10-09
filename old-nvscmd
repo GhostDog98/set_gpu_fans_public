@@ -58,7 +58,7 @@ set n = `echo $1 | wc -c`
 set gpuid=""
 @ n--
 if ( $cond == $n ) then
-    set gpuid=" -i $a "
+    set gpuid=" -i $1 "
     echo ${gpuid}
     shift
 endif
