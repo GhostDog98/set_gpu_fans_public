@@ -27,7 +27,7 @@ function fan_curve {
 }
 
 cond=$(expr "$1" : '^[A-Fa-f0-9]*:[A-Fa-f0-9]*.[A-Fa-f0-9]*$')
-n=$(echo -n "$1" | wc -c)
+n=$(echo "$1" | wc -c | tr -d ' ')
 gpuid=""
 ((n--))
 
@@ -39,24 +39,30 @@ fi
 
 
 if [ "x$1" == "xrun_forever" ]; then
+    echo "Setting run_forever to 1"
     run_forever=1
     shift
 else
+    echo "Setting run_forever to 0"
     run_forever=0
 fi
 
 if [ "x$1" == "xstop" ]; then
+    echo "Setting target to -1"
     target=-1
 fi
 
 if [ "x$1" == "x" ] || [ "x$1" == "xstart" ] || [ "x$1" == "x-display" ]; then
     # this means "use heuristic"
+    echo "Using heuristic for fan speed"
     target=-3
 else
+    echo "Setting target to $1"
     target=$1
 fi
 
 if [ "x$1" != "x" ] && [ "x$1" != "x-display" ]; then
+    echo "Shifting arguments"
     shift
 fi
 
@@ -66,7 +72,7 @@ last_friendly_target="UNKNOWN"
 
 
 while true; do
-    # stuff
+    # Why does target get set to an improper value in my rewrite?
 
     if [ $target -eq -3 ]; then
         # execute heuristic

@@ -58,31 +58,37 @@ set n = `echo $1 | wc -c`
 set gpuid=""
 @ n--
 if ( $cond == $n ) then
-    set gpuid=" -i $1 "
+    set gpuid=" -i $a "
     echo ${gpuid}
     shift
 endif
 
 
 if ("x$1" == "xrun_forever") then
+    echo "Setting run_forever to 1"
     @ run_forever = 1
     shift
 else
+    echo "Setting run_forever to 0"
     @ run_forever = 0
 endif
 
 if ("x$1" == "xstop") then
+    echo "Setting target to -1"
     @ target = -1
 endif
 
 if ("x$1" == "x" || "x$1" == "xstart" || "x$1" == "x-display") then
     # this means "use heuristic"
+    echo "Using heuristic for fan speed"
     @ target = -3
 else
+    echo "Setting target to $1"
     @ target = $1
 endif
 
 if ("x$1" != "x" && "x$1" != "x-display") then
+    echo "Shifting arguments"
     shift
 endif
 
