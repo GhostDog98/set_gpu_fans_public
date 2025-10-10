@@ -30,7 +30,6 @@ function fan_curve {
 echo "Setting run_forever to 1"
 run_forever=1
 
-
 GPU_ID=$1 # GPU ID is the first argument, this is to set the gpu's fans we want to control
 shift
 
